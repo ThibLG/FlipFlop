@@ -20,7 +20,6 @@ export enum eHeaderType
 interface HeaderProps {
     headerType : eHeaderType;
     newNotification : boolean;
-    children : React.ReactNode;
     setPopUpType : CallableFunction;
 }
 
@@ -61,7 +60,7 @@ const Header = (props : HeaderProps) => {
                     
                     {/* Icon */}
                     <Pressable
-                    onPress={() => {}}
+                    onPress={() => { props.setPopUpType(ePopUpType.Notifications) }}
                     style={[ styles.icon ]}  
                     >
                         <Image style={ styles.icon } source={require('../Images/Icons/icons_bell_white_on_light_blue.png')} />
@@ -75,7 +74,7 @@ const Header = (props : HeaderProps) => {
             </View>
     
             {/* Parameters button */}
-            <Pressable onPress={() => {}} 
+            <Pressable onPress={() => { props.setPopUpType(ePopUpType.Parameters) }} 
                 style={ styles.icon }
                 >
                 <Image style={ styles.icon } source={require('../Images/Icons/icons_parameters_white_on_light_blue.png')} />
