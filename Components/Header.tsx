@@ -3,9 +3,11 @@
 // - on HomeScreen : Profile/Notifications and Parameters icons
 // - on GameScreen : Return and Parameters icons
 
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Text, Pressable, Image } from 'react-native';
+import { Constants } from "../Utils/Constants";
+import { displayConditionStyle } from "../Utils/Styles";
+import { ePopUpType } from "./HomeScreen";
 
-const iconSize = 35;            // size of the round icons inside the header (return, parameters, profile, notifications)
 const floatingPointSize = 10;   // size of the red point above th notifications icon
 const mainViewPadding = 10;      // padding of the main view
 
@@ -16,9 +18,10 @@ export enum eHeaderType
 }
 
 interface HeaderProps {
-    headerType: eHeaderType;
-    newNotification: boolean;
-    children: React.ReactNode
+    headerType : eHeaderType;
+    newNotification : boolean;
+    children : React.ReactNode;
+    setPopUpType : CallableFunction;
 }
 
 const Header = (props : HeaderProps) => {
@@ -30,15 +33,12 @@ const Header = (props : HeaderProps) => {
         <View 
         style={ styles.mainContainer }
         >
+            {/* Back button */}
             <Pressable 
             onPress={() => {}}
-            style={[ styles.icon, displayConditionStyle(!isHomeScreen).display ]}
+            style={ displayConditionStyle(!isHomeScreen).display }
             >
-                <Text
-                style={{ fontSize: 15, color: 'white' }}
-                >
-                    {"R"}
-                </Text>
+                <Image style={ styles.icon } source={require('../Images/Icons/icons_back_white_on_light_blue.png')} />
             </Pressable>
             
             {/* Profile and Notifications buttons */}
@@ -48,14 +48,10 @@ const Header = (props : HeaderProps) => {
                 
                 {/* Profile button */}
                 <Pressable 
-                onPress={() => {}}
-                style={[ styles.icon, displayConditionStyle(isHomeScreen).display ]}  
+                onPress={() => { props.setPopUpType(ePopUpType.Profile) }}
+                style={ displayConditionStyle(isHomeScreen).display }  
                 >
-                    <Text
-                    style={{ fontSize: 15, color: 'white' }}
-                    > 
-                        {"Pr"}
-                    </Text>
+                <Image style={ styles.icon } source={require('../Images/Icons/icons_profile_white_on_light_blue.png')} />
                 </Pressable>
                 
                 {/* Notifications button */}
@@ -68,11 +64,7 @@ const Header = (props : HeaderProps) => {
                     onPress={() => {}}
                     style={[ styles.icon ]}  
                     >
-                        <Text
-                        style={{ fontSize: 15, color: 'white' }}
-                        > 
-                            {"N"}
-                        </Text>
+                        <Image style={ styles.icon } source={require('../Images/Icons/icons_bell_white_on_light_blue.png')} />
                     </Pressable>
                     
                     {/* Floating indicator */}
@@ -86,11 +78,7 @@ const Header = (props : HeaderProps) => {
             <Pressable onPress={() => {}} 
                 style={ styles.icon }
                 >
-                <Text
-                    style={{ fontSize: 15, color: 'white' }}
-                    >
-                    {"Pa"}
-                </Text>
+                <Image style={ styles.icon } source={require('../Images/Icons/icons_parameters_white_on_light_blue.png')} />
             </Pressable>
         
         </View>
@@ -106,9 +94,9 @@ const styles = StyleSheet.create({
     },
     icon: {
        backgroundColor: '#9C9CFF',
-       height: iconSize,
-       width: iconSize,
-       borderRadius: iconSize,
+       height: Constants.ICON_SIZE,
+       width: Constants.ICON_SIZE,
+       borderRadius: Constants.ICON_SIZE,
        justifyContent: 'center',
        alignItems: 'center'
     },
@@ -120,12 +108,6 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-end',
         position: 'absolute'
     }
-});
-
-const displayConditionStyle = (display : boolean) => StyleSheet.create({
-display: {
-    display: display ? 'flex' : 'none'
-}
 });
 
 export default Header;

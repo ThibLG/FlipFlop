@@ -2,6 +2,18 @@ import { StyleSheet, View, Text, Pressable, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Header from "./Header";
 import { eHeaderType } from "./Header";
+import GenericPopUp from "./GenericPopUp";
+import { useState } from 'react';
+import { displayConditionStyle } from "../Utils/Styles";
+
+
+export enum ePopUpType
+{
+  None,
+  Profile,
+  Notifications,
+  Parameters
+}
 
 
 interface ListElement {
@@ -30,6 +42,17 @@ const DATA : ListElement[] = [
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+
+  const [showPopUp, setShowPopUp] = useState(ePopUpType.None);
+
+  const setPopUpState = (state : ePopUpType) => {
+    console.log('setPopUpState : ' + showPopUp + ' to ' + state);
+    setShowPopUp(state);
+  }
+
+  const closePopUp = () => {
+    setShowPopUp(ePopUpType.None);
+  }
 
   const renderListItems = ( item : ListElement ) => {
     return (
@@ -70,10 +93,10 @@ const HomeScreen = () => {
   };
 
   return (
-    <View style={ { flex: 1 } }
+    <View style={ { flex: 1, justifyContent: 'center' } }
     >
 
-    <Header headerType= {eHeaderType.HomeScreen} newNotification= {true} > </Header>
+    <Header headerType= {eHeaderType.HomeScreen} newNotification= {true} setPopUpType= {setPopUpState} > </Header>
         
     <View style={ {backgroundColor: '#574AE2', height: 75, alignItems: 'center', justifyContent: 'center' }}>
         <Text
@@ -124,16 +147,18 @@ const HomeScreen = () => {
         </Text>
     </View>
     
-    {/* <View 
-    style={{
+    <View 
+    style={[{
       backgroundColor: '#000000',
       flex: 1,
       ...StyleSheet.absoluteFillObject,
       position: 'absolute',
-      opacity: 0.75}}
+      opacity: 0.75},
+      displayConditionStyle(showPopUp != ePopUpType.None).display
+    ]}
     />
     
-    <View 
+    {/* <View 
     style={{
       backgroundColor: '#FFFFFF',
       height: 100,
@@ -143,6 +168,18 @@ const HomeScreen = () => {
       marginTop: 10,
       position: 'absolute'}}
     /> */}
+
+    <GenericPopUp
+    iconImagepath={require('../Images/Icons/icons_profile_white.png')}
+    isDisplayed = {showPopUp != ePopUpType.None}
+    closePopUp = {closePopUp}
+    > 
+      <View >
+          <Text style={{ fontSize: 20 }} > {"Inner Text 1"} </Text>
+          <Text style={{ fontSize: 20 }} > {"Inner Text 2"} </Text>
+          <Text style={{ fontSize: 20 }} > {"Inner Text 3"} </Text>
+      </View>
+    </GenericPopUp>
 
     </View>
   );
