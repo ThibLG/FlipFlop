@@ -1,7 +1,7 @@
 // 
 
 import { StyleSheet, View, Image, Pressable, ImageSourcePropType } from 'react-native';
-import { displayConditionStyle } from "../Utils/Styles";
+import { displayConditionStyle } from "../../Utils/Styles";
 
 const CROSS_SIZE = 25;
 
@@ -10,6 +10,7 @@ interface PopUpParameters {
     isDisplayed : boolean;
     iconImagepath : ImageSourcePropType;
     closePopUp : CallableFunction;
+    fullWidth : boolean
 }
 
 const GenericPopUp = (props : PopUpParameters) => {
@@ -21,10 +22,11 @@ const GenericPopUp = (props : PopUpParameters) => {
             {
             backgroundColor: '#FAFAFA',
             borderRadius: 10,
-            marginLeft: 10,
-            marginTop: 10,
+            margin: 10,
             position: 'absolute',
-            alignSelf: 'center'
+            alignSelf: 'center',
+            left: props.fullWidth ? 0 : null,
+            right: props.fullWidth ? 0 : null,
             },
             displayConditionStyle(props.isDisplayed).display
         ]}
@@ -42,7 +44,7 @@ const GenericPopUp = (props : PopUpParameters) => {
                 >
                     <Image
                     style={[ styles.cross, {alignSelf: 'flex-end'} ]}
-                    source={require('../Images/Icons/icons_cross_white.png')}/>
+                    source={require('../../Images/Icons/icons_cross_white.png')}/>
                 </Pressable>
 
                 <Pressable 
@@ -56,7 +58,7 @@ const GenericPopUp = (props : PopUpParameters) => {
             
             <View 
             style={{
-                padding: 50,
+                padding: 30,
             }}
             >
                 {props.children}

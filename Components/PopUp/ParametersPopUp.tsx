@@ -8,25 +8,26 @@ interface PopUpParameters {
     closePopUp : CallableFunction;
 }
 
-const NotificationsPopUp = (props : PopUpParameters) => {
+const ParametersPopUp = (props : PopUpParameters) => {
 
     return (
         <GenericPopUp
-        iconImagepath = {require('../Images/Icons/icons_bell_white.png')}
+        iconImagepath = {require('../../Images/Icons/icons_parameters_white.png')}
         isDisplayed = {props.isDisplayed}
         closePopUp = {props.closePopUp}
+        fullWidth = {false}
         > 
           <View >
               <Text 
               style={ styles.mainText } 
               >
-                { "Matthieu attend votre tour" } 
+                { "Choix de langue" } 
               </Text>
               
               <Text 
               style={ styles.mainText } 
               >
-                { "Steven attend votre tour" } 
+                { "Choix du thème" } 
               </Text>
           </View>
         </GenericPopUp>
@@ -40,4 +41,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default NotificationsPopUp;
+export default ParametersPopUp;

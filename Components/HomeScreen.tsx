@@ -4,9 +4,9 @@ import Header from "./Header";
 import { eHeaderType } from "./Header";
 import { useState } from 'react';
 import { displayConditionStyle } from "../Utils/Styles";
-import ProfilePopUp from "./ProfilePopUp";
-import NotificationsPopUp from "./NotificationsPopUp";
-import ParametersPopUp from "./ParametersPopUp";
+import ProfilePopUp from "./PopUp/ProfilePopUp/ProfilePopUp";
+import NotificationsPopUp from "./PopUp/NotificationsPopUp";
+import ParametersPopUp from "./PopUp/ParametersPopUp";
 
 
 export enum ePopUpType
@@ -48,7 +48,6 @@ const HomeScreen = () => {
   const [showPopUp, setShowPopUp] = useState(ePopUpType.None);
 
   const setPopUpState = (state : ePopUpType) => {
-    console.log('setPopUpState : ' + showPopUp + ' to ' + state);
     setShowPopUp(state);
   }
 
@@ -128,7 +127,7 @@ const HomeScreen = () => {
     <View
     style={{
       flex: 1,
-      justifyContent: 'center'
+      justifyContent: 'center',
     }}
     >
 
