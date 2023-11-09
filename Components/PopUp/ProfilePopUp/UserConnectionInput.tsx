@@ -1,66 +1,75 @@
-// 
+// Composant constitue de deux entrees permettant a l'utilisateur de
+// renseigner son adresse mail et mot de passe
+// des props sont a lier au state du composant parent pour la modification des champs
+// les entree peuvent etre rendues inaccessibles pendant les appels a Firebase Auth
+// un ActivityIndicator est alors affiche
 
 import { StyleSheet, View, Text, TextInput, ActivityIndicator} from 'react-native';
-import { useState } from 'react';
 import { displayConditionStyle } from "../../../Utils/Styles";
 
-const EMAIL_TEXT            = "Adresse mail";
-const EMAIL_PLACEHOLDER     = "Adresse mail...";
-const PASSWORD_TEXT         = "Mot de passe";
-const PASSWORD_PLACEHOLDER  = "Mot de passe...";
+const EMAIL_TEXT            = "Adresse mail";       // affiche au dessus de la TextInput email
+const EMAIL_PLACEHOLDER     = "Adresse mail...";    // affiche dans le TextInput email
+const PASSWORD_TEXT         = "Mot de passe";       // affiche au dessus de la TextInput password
+const PASSWORD_PLACEHOLDER  = "Mot de passe...";    // affiche dans le TextInput password
+
+const MARGIN_BETWEEN_TEXTINPUTS = 10;   // marge autour de la seconde TextInput
 
 interface UserInputParameters {
-    isEmailDisplayed : boolean;
-    isPasswordDisplayed : boolean;
-    activityIndicatorDisplayed : boolean;
+    email : string,     // linked to ProfilePopUp email
+    password : string,  // linked to ProfilePopUp password
+    onChangeEmail : (email : string) => void;       // called when email changed
+    onChangePassword : (email : string) => void;    // called when password changed
+    isEmailDisplayed : boolean;             // true if email view should be displayed
+    isPasswordDisplayed : boolean;          // true if password view should be displayed
+    isActivityIndicatorDisplayed : boolean; // true if activity indicator should be displayed
 }
 
 const UserConnectionInput = (props : UserInputParameters) => {
 
-    const [email, onChangeEmail] = useState('');
-    const [password, onChangePassword] = useState('');
-
-    const getEmail = () =>
-    {
-        return email;
-    }
-
     return (
-        <View>                
+        <View>        
+            {/* Adresse mail de l'utilisateur */}
             <View style={ displayConditionStyle(props.isEmailDisplayed).display } >
                 <Text> { EMAIL_TEXT } </Text>
 
                 <TextInput
                     style={ styles.textInput }
-                    onChangeText={onChangeEmail}
-                    value={email}
+                    onChangeText={props.onChangeEmail}
+                    value={props.email}
                     placeholder={EMAIL_PLACEHOLDER}
                 />
             </View>
 
-            <View style={[{marginVertical: 10}, displayConditionStyle(props.isPasswordDisplayed).display ]} >
+            {/* Mot de passe de l'utilisateur */}
+            <View style={[
+                {marginVertical: MARGIN_BETWEEN_TEXTINPUTS},
+                displayConditionStyle(props.isPasswordDisplayed).display
+                ]} >
                 <Text> { PASSWORD_TEXT } </Text>
 
                 <TextInput
                     style={ styles.textInput }
-                    onChangeText={onChangePassword}
-                    value={password}
+                    onChangeText={props.onChangePassword}
+                    value={props.password}
                     placeholder={PASSWORD_PLACEHOLDER}
                     secureTextEntry={true}
                 />
             </View>
 
+            {/* View semi-opaque affichee par par dessus le mail et le mot de passe
+            pendant les appels a Firebase Auth*/}
             <View 
             style={[
                 styles.backgroundMask,
-                displayConditionStyle(props.activityIndicatorDisplayed).display
+                displayConditionStyle(props.isActivityIndicatorDisplayed).display
             ]}
             />
 
+            {/* ActivityIndicator affiche pendant les appels a Firebase Auth*/}
             <ActivityIndicator
             style={[
                 styles.activityIndicator,
-                displayConditionStyle(props.activityIndicatorDisplayed).display
+                displayConditionStyle(props.isActivityIndicatorDisplayed).display
             ]}
             size="small"
             color="#574AE2" />

@@ -5,7 +5,8 @@ import GenericPopUp from "../GenericPopUp";
 import { useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import { displayConditionStyle } from "../../../Utils/Styles";
-import  UserConnectionInput  from "./UserConnectionInput";
+import UserConnectionInput from "./UserConnectionInput";
+import getEmail from "./UserConnectionInput";
 
 const MAIN_TEXT_DEFAULT                 = "Une connexion est nécessaire pour jouer !";
 const BUTTON_TEXT_CONNECTED             = "Se déconnecter";
@@ -56,10 +57,11 @@ const computeButtonText = (connectionState : eConnectionState) => {
 const ProfilePopUp = (props : PopUpParameters) => {
 
     const [connectionState, setConnectionState] = useState(eConnectionState.LoggingIn);
-    const [email, onChangeEmail] = useState('');
-    const [password, onChangePassword] = useState('');
     const [errorMessageId, setErrorMessageId] = useState(0);
     const [connexionWaitingBackend, setconnexionWaitingBackend] = useState(false);
+    const [email, onChangeEmail] = useState('');
+    const [password, onChangePassword] = useState('');
+
     // const [profileState, setProfileState] = useState(
     //     [
     //         eConnectionState.LoggingIn,
@@ -271,7 +273,7 @@ const ProfilePopUp = (props : PopUpParameters) => {
 
     return (
         <GenericPopUp
-        iconImagepath = {require('../../Images/Icons/icons_profile_white.png')}
+        iconImagepath = {require('../../../Images/Icons/icons_profile_white.png')}
         isDisplayed = {props.isDisplayed}
         closePopUp = {props.closePopUp}
         fullWidth = {true}
@@ -283,49 +285,15 @@ const ProfilePopUp = (props : PopUpParameters) => {
                     { isConnected() ? auth().currentUser?.email : MAIN_TEXT_DEFAULT } 
                 </Text>
 
-                <View>                
-                    <View style={ displayConditionStyle(connectionState <= eConnectionState.SettingPassword).display } >
-                        <Text> { "Adresse mail" } </Text>
-
-                        <TextInput
-                            style={{ padding: 5, backgroundColor: '#EDEDED' }}
-                            onChangeText={onChangeEmail}
-                            value={email}
-                            placeholder="Adresse mail..."
-                        />
-                    </View>
-
-                    <View style={[{marginVertical: 10}, displayConditionStyle(connectionState <= eConnectionState.SigningOut).display ]} >
-                        <Text> { "Mot de passe" } </Text>
-
-                        <TextInput
-                            style={{ padding: 5, backgroundColor: '#EDEDED' }}
-                            onChangeText={onChangePassword}
-                            value={password}
-                            placeholder="Mot de passe..."
-                            secureTextEntry={true}
-                        />
-                    </View>
-      
-                    <View 
-                    style={[{
-                        backgroundColor: '#FFFFFF',
-                        flex: 1,
-                        ...StyleSheet.absoluteFillObject,
-                        position: 'absolute',
-                        opacity: 0.5},
-                        displayConditionStyle(connexionWaitingBackend).display
-                    ]}
-                    />
-
-                    <ActivityIndicator
-                    style={[{
-                        ...StyleSheet.absoluteFillObject,
-                        position: 'absolute'},
-                        displayConditionStyle(connexionWaitingBackend).display
-                    ]}
-                    size="small" color="#574AE2" />
-                </View>
+                <UserConnectionInput 
+                    email={email}
+                    onChangeEmail={onChangeEmail}
+                    password={password}
+                    onChangePassword={onChangePassword}
+                    isEmailDisplayed={connectionState <= eConnectionState.SettingPassword}
+                    isPasswordDisplayed={connectionState <= eConnectionState.SigningOut}
+                    isActivityIndicatorDisplayed={connexionWaitingBackend}
+                />
 
                 { displayErrorMessage() }
 
