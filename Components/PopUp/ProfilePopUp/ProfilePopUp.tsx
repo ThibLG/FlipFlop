@@ -6,7 +6,7 @@ import { useState } from 'react';
 import auth from '@react-native-firebase/auth';
 import { displayConditionStyle } from "../../../Utils/Styles";
 import UserConnectionInput from "./UserConnectionInput";
-import getEmail from "./UserConnectionInput";
+import ErrorMessage, { eInfoMessageId } from "./InfoMessage";
 
 const MAIN_TEXT_DEFAULT                 = "Une connexion est nécessaire pour jouer !";
 const BUTTON_TEXT_CONNECTED             = "Se déconnecter";
@@ -29,18 +29,6 @@ enum eConnectionState
     Connected,
 }
 
-enum eErrorId
-{
-    None,
-    EmptyMail,
-    EmptyPassword,
-    NoAccountFound,
-    EmailNotVerified,
-    AccountCreationImpossible,
-    PasswordResetEmailSent,
-    AccountDeletionImpossible
-}
-
 interface PopUpParameters {
     isDisplayed : boolean;
     closePopUp : CallableFunction;
@@ -57,61 +45,16 @@ const computeButtonText = (connectionState : eConnectionState) => {
 const ProfilePopUp = (props : PopUpParameters) => {
 
     const [connectionState, setConnectionState] = useState(eConnectionState.LoggingIn);
-    const [errorMessageId, setErrorMessageId] = useState(0);
+    const [errorMessageId, setErrorMessageId] = useState(eInfoMessageId.None);
     const [connexionWaitingBackend, setconnexionWaitingBackend] = useState(false);
     const [email, onChangeEmail] = useState('');
     const [password, onChangePassword] = useState('');
-
-    // const [profileState, setProfileState] = useState(
-    //     [
-    //         eConnectionState.LoggingIn,
-    //         '',
-    //         '',
-    //         eErrorId.None,
-    //         false
-    //     ]
-    // );
-
-    const displayErrorMessage = () => {
-        let message = '';
-        if(errorMessageId === eErrorId.EmptyMail)
-        {
-            message = 'Adresse mail vide.'
-        }
-        else if(errorMessageId === eErrorId.EmptyPassword)
-        {
-            message = 'Mot de passe vide.'
-        }
-        else if(errorMessageId === eErrorId.NoAccountFound)
-        {
-            message = 'Connexion impossible.\nMerci de vérifier l\'adresse mail et le mot de passe.'
-        }
-        else if(errorMessageId === eErrorId.EmailNotVerified)
-        {
-            message = 'Adresse mail non vérifiée.'
-        }
-        else if(errorMessageId === eErrorId.PasswordResetEmailSent)
-        {
-            message = 'Consultez vos mails pour modifier votre mot de passe.'
-        }
-        else if(errorMessageId === eErrorId.AccountDeletionImpossible)
-        {
-            message = 'Impossible de supprimmer le compte.'
-        }
-                        
-        return (
-        <Text 
-        style={{ color: 'red', fontSize: 12}} numberOfLines={2}
-        >
-            { message } 
-        </Text>
-        )
-    }
+    
 
     const resetErrorMessage = () => {
-        if(errorMessageId != eErrorId.None)
+        if(errorMessageId != eInfoMessageId.None)
         {
-            setErrorMessageId(eErrorId.None);
+            setErrorMessageId(eInfoMessageId.None);
         }
     }
 
@@ -125,17 +68,17 @@ const ProfilePopUp = (props : PopUpParameters) => {
         if(connectionState === eConnectionState.LoggingIn)
         {
             if(email === '') {
-                setErrorMessageId(eErrorId.EmptyMail);
+                setErrorMessageId(eInfoMessageId.EmptyEmail);
             }
             else if(password === '') {
-                setErrorMessageId(eErrorId.EmptyPassword);
+                setErrorMessageId(eInfoMessageId.EmptyPassword);
             }
             else {
                 setconnexionWaitingBackend(true);
                 try {
                     await auth().signInWithEmailAndPassword(email, password);
                 } catch (e) {
-                    setErrorMessageId(eErrorId.NoAccountFound);
+                    setErrorMessageId(eInfoMessageId.ConnectionImpossible);
                 }
                 setconnexionWaitingBackend(false);
             }
@@ -143,10 +86,10 @@ const ProfilePopUp = (props : PopUpParameters) => {
         else if(connectionState === eConnectionState.SigningIn)
         {
             if(email === '') {
-                setErrorMessageId(eErrorId.EmptyMail);
+                setErrorMessageId(eInfoMessageId.EmptyEmail);
             }
             else if(password === '') {
-                setErrorMessageId(eErrorId.EmptyPassword);
+                setErrorMessageId(eInfoMessageId.EmptyPassword);
             }
             else {
                 setconnexionWaitingBackend(true);
@@ -154,7 +97,7 @@ const ProfilePopUp = (props : PopUpParameters) => {
                     await auth().createUserWithEmailAndPassword(email, password);
                     await auth().currentUser?.sendEmailVerification();
                 } catch (e) {
-                    setErrorMessageId(eErrorId.AccountCreationImpossible);
+                    setErrorMessageId(eInfoMessageId.AccountCreationImpossible);
                 }
                 setconnexionWaitingBackend(false);
             }
@@ -177,7 +120,7 @@ const ProfilePopUp = (props : PopUpParameters) => {
                await auth().signInWithEmailAndPassword(email, password);
                await auth().currentUser?.delete();
             } catch (e) {
-               setErrorMessageId(eErrorId.AccountDeletionImpossible);
+               setErrorMessageId(eInfoMessageId.AccountDeletionImpossible);
             }
             setconnexionWaitingBackend(false);
             setConnectionState(eConnectionState.LoggingIn);
@@ -219,7 +162,7 @@ const ProfilePopUp = (props : PopUpParameters) => {
         await auth().sendPasswordResetEmail(email);
         setconnexionWaitingBackend(false);
         setConnectionState(eConnectionState.LoggingIn);
-        setErrorMessageId(eErrorId.PasswordResetEmailSent);
+        setErrorMessageId(eInfoMessageId.PasswordResetEmailSent);
         
         if(auth().currentUser?.email)
         {
@@ -233,7 +176,7 @@ const ProfilePopUp = (props : PopUpParameters) => {
     auth().onAuthStateChanged(function(user) {
         if (user) {
           if (user.emailVerified === false) {
-            setErrorMessageId(eErrorId.EmailNotVerified);
+            setErrorMessageId(eInfoMessageId.EmailNotVerified);
           }
           else if (connectionState <= eConnectionState.SigningIn) {
             setConnectionState(eConnectionState.Connected);
@@ -295,7 +238,9 @@ const ProfilePopUp = (props : PopUpParameters) => {
                     isActivityIndicatorDisplayed={connexionWaitingBackend}
                 />
 
-                { displayErrorMessage() }
+                <ErrorMessage
+                    errorMessageId={errorMessageId}
+                />
 
                 <Pressable 
                     onPress={() => {onMainButtonPushed()}}

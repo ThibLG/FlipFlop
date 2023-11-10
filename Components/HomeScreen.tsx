@@ -1,7 +1,6 @@
 import { StyleSheet, View, Text, Pressable, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Header from "./Header";
-import { eHeaderType } from "./Header";
+import Header, {eHeaderType} from "./Header";
 import { useState } from 'react';
 import { displayConditionStyle } from "../Utils/Styles";
 import ProfilePopUp from "./PopUp/ProfilePopUp/ProfilePopUp";
