@@ -7,6 +7,7 @@ import auth from '@react-native-firebase/auth';
 import { displayConditionStyle } from "../../../Utils/Styles";
 import UserConnectionInput from "./UserConnectionInput";
 import ErrorMessage, { eInfoMessageId } from "./InfoMessage";
+import { AuthentificationInterface } from "./AuthentificationInterface"
 
 const MAIN_TEXT_DEFAULT                 = "Une connexion est nécessaire pour jouer !";
 const BUTTON_TEXT_CONNECTED             = "Se déconnecter";
@@ -49,6 +50,8 @@ const ProfilePopUp = (props : PopUpParameters) => {
     const [connexionWaitingBackend, setconnexionWaitingBackend] = useState(false);
     const [email, onChangeEmail] = useState('');
     const [password, onChangePassword] = useState('');
+
+    var authItf = new AuthentificationInterface(setErrorMessageId, setconnexionWaitingBackend);
     
 
     const resetErrorMessage = () => {
@@ -64,65 +67,31 @@ const ProfilePopUp = (props : PopUpParameters) => {
 
     const onMainButtonPushed = async () => {
         resetErrorMessage();
+        
+        authItf.setEmailAndPassword(email, password);
 
         if(connectionState === eConnectionState.LoggingIn)
         {
-            if(email === '') {
-                setErrorMessageId(eInfoMessageId.EmptyEmail);
-            }
-            else if(password === '') {
-                setErrorMessageId(eInfoMessageId.EmptyPassword);
-            }
-            else {
-                setconnexionWaitingBackend(true);
-                try {
-                    await auth().signInWithEmailAndPassword(email, password);
-                } catch (e) {
-                    setErrorMessageId(eInfoMessageId.ConnectionImpossible);
-                }
-                setconnexionWaitingBackend(false);
-            }
+            await authItf.logIn();
         }
         else if(connectionState === eConnectionState.SigningIn)
         {
-            if(email === '') {
-                setErrorMessageId(eInfoMessageId.EmptyEmail);
-            }
-            else if(password === '') {
-                setErrorMessageId(eInfoMessageId.EmptyPassword);
-            }
-            else {
-                setconnexionWaitingBackend(true);
-                try {
-                    await auth().createUserWithEmailAndPassword(email, password);
-                    await auth().currentUser?.sendEmailVerification();
-                } catch (e) {
-                    setErrorMessageId(eInfoMessageId.AccountCreationImpossible);
-                }
-                setconnexionWaitingBackend(false);
-            }
+            await authItf.signIn();
         }
         else if(connectionState === eConnectionState.Connected)
         {
-            setconnexionWaitingBackend(true);
-            await auth().signOut();
-            setconnexionWaitingBackend(false);
+            await authItf.logOut();
             setConnectionState(eConnectionState.LoggingIn);
+            console.debug('[ProfilePopUp] Logged out');
         }
         else if(connectionState === eConnectionState.SettingPassword)
         {
-            resetPassword();
+            await authItf.resetPassword();
         }
         else if(connectionState === eConnectionState.SigningOut)
         {
-            setconnexionWaitingBackend(true);
-            try {
-               await auth().signInWithEmailAndPassword(email, password);
-               await auth().currentUser?.delete();
-            } catch (e) {
-               setErrorMessageId(eInfoMessageId.AccountDeletionImpossible);
-            }
-            setconnexionWaitingBackend(false);
+            
+            await authItf.signOut();
             setConnectionState(eConnectionState.LoggingIn);
             onChangeEmail('');
             onChangePassword('');
@@ -154,22 +123,6 @@ const ProfilePopUp = (props : PopUpParameters) => {
         else if(connectionState === eConnectionState.Connected)
         {
             setConnectionState(eConnectionState.SettingPassword);
-        }
-    }
-
-    const resetPassword = async () => {
-        setconnexionWaitingBackend(true);
-        await auth().sendPasswordResetEmail(email);
-        setconnexionWaitingBackend(false);
-        setConnectionState(eConnectionState.LoggingIn);
-        setErrorMessageId(eInfoMessageId.PasswordResetEmailSent);
-        
-        if(auth().currentUser?.email)
-        {
-            setconnexionWaitingBackend(true);
-            await auth().signOut();
-            setconnexionWaitingBackend(false);
-            setConnectionState(eConnectionState.LoggingIn);
         }
     }
 
@@ -232,7 +185,8 @@ const ProfilePopUp = (props : PopUpParameters) => {
                     email={email}
                     onChangeEmail={onChangeEmail}
                     password={password}
-                    onChangePassword={onChangePassword}
+                    // onChangePassword={onChangePassword}
+                    onChangePassword={() => {}}
                     isEmailDisplayed={connectionState <= eConnectionState.SettingPassword}
                     isPasswordDisplayed={connectionState <= eConnectionState.SigningOut}
                     isActivityIndicatorDisplayed={connexionWaitingBackend}

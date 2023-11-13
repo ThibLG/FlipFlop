@@ -19,7 +19,8 @@ export enum eInfoMessageId
     EmailNotVerified,
     AccountCreationImpossible,
     PasswordResetEmailSent,
-    AccountDeletionImpossible
+    AccountDeletionImpossible,
+    DisconnectionImpossible
 }
 
 const EMPTY_MESSAGE                     = '';
@@ -104,7 +105,7 @@ const getMessageFromId = (id : eInfoMessageId) => {
     // une chaine par defaut
     if(!messageFound)
     {
-        console.error('[ErrorMessage] Parameter id = ' + id +
+        console.debug('[ErrorMessage] Parameter id = ' + id +
         ' did not match any element from the list infoMessages. Returning EMPTY_MESSAGE by default')
 
         outputMessage = EMPTY_MESSAGE;
